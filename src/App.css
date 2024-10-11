@@ -1,0 +1,11 @@
+.effect-3d{
+    text-shadow: none
+}
+
+.effect-3d:hover{
+    text-shadow: 2px 3px 3px rgba(0, 0, 0, 0.4);
+}
+
+.selected-efect-3d{
+    text-shadow: 2px 3px 3px rgba(0, 0, 0, 0.4);
+}

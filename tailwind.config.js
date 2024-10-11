@@ -5,7 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+
+    },
   },
-  plugins: [],
+  plugins: [
+    require("@xpd/tailwind-3dtransforms"),
+    // require('tailwindcss-textshadow'), // Add this plugin for text-shadow support
+  ],
 }

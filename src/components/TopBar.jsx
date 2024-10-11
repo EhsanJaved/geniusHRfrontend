@@ -2,7 +2,10 @@ import React from 'react';
 
 const TopBar = () => {
   return (
-    <div className="flex justify-between items-center p-5 bg-gray-100">
+    <div className='px-3 py-2'>
+    <div className="
+     my-5 flex h-20 items-center justify-between px-9 relative w-full bg-white shadow-lg
+    ">
       <div>
         <h1 className="text-xl font-bold">Welcome back, Ehsan Javed 🌟</h1>
       </div>
@@ -14,6 +17,7 @@ const TopBar = () => {
           className="w-10 h-10 rounded-full"
         />
       </div>
+    </div>
     </div>
   );
 };
