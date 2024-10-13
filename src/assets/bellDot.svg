@@ -7,7 +7,7 @@
 <path d="M17 30C17.7961 30.6219 18.8475 31 20 31C21.1525 31 22.2039 30.6219 23 30" stroke="#C4C4C4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 </g>
-<circle cx="27" cy="11" r="4.5" fill="#534FEB" stroke="white"/>
+<!-- <circle cx="27" cy="11" r="4.5" fill="#534FEB" stroke="white"/> -->
 <defs>
 <filter id="filter0_i_244_5231" x="8.99707" y="9.5" width="22.0059" height="23.5" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>

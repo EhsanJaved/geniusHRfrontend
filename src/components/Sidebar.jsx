@@ -25,7 +25,7 @@ const Sidebar = (props) => {
 
   return (
     <div className="w-auto bg-white shadow-lg">
-      <div className="p-3">
+      <div className="p-3 flex items-center flex-col">
         <img src={props.MainLogo} alt="Logo" />
         <ul>
           {/* <h2 className="font-bold flex my-7">MENU</h2> */}
@@ -50,7 +50,7 @@ const Sidebar = (props) => {
               href="#" 
               className="bg-white justify-center text-red-700  font-bold flex items-center  px-4 py-3 rounded-lg hover:shadow-slate-700 hover:shadow-inner transition duration-300 ease-in-out hover:bg-red-700 hover:text-white hover:translate-x-1"
             >
-              <span className="ml-4">Logout</span>
+              <span className="">Logout</span>
             </a>
           </li>
         </ul>
