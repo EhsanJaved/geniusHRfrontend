@@ -3,8 +3,9 @@ import profilePic from '../assets/profile-pic.png'
 import msg from '../assets/msgDot.svg'
 import bell from '../assets/bellDot.svg'
 import drop from '../assets/arrow_drop_down.svg'
-const TopBar = () => {
+const TopBar = (props) => {
   return (
+    <>
     <div className='px-3 py-2'>
     <div className="
      my-5 flex h-20 items-center justify-between px-9 relative w-full bg-white shadow-lg
@@ -42,6 +43,9 @@ const TopBar = () => {
       </div>
     </div>
     </div>
+    {/* Name of Dashboard */}
+    <div className='font-bold pl-12 pb-4 text-2xl selected-efect-3d'> {props.selected}</div>
+    </>
   );
 };
 
