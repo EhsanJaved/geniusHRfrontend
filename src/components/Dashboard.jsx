@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import CircularProgressBar from './fregments/Percentage';
 import Chart from 'chart.js/auto';
-import ActivityFeed from './fregments/ActivityFees';
+import ActivityFeed from './fregments/ActivityFeed';
 import Meetings from './fregments/Meetingfeeds';
 import AttendanceChart from './fregments/Attendance';
 const Dashboard = () => {
