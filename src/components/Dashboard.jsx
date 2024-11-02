@@ -62,6 +62,8 @@ const Dashboard = () => {
   }, []);
 
   return (
+    <>
+    <h1 className="text-3xl font-bold pl-8 pb-4 selected-efect-3d">Dasboard</h1>
     <div className="p-5">
       {/* Statistics cards */}
       <div className="grid grid-cols-4 gap-6 mb-6 ">
@@ -90,6 +92,7 @@ const Dashboard = () => {
           <AttendanceChart/>
       </div>
     </div>
+    </>
   );
 };
 

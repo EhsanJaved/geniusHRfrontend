@@ -1,23 +1,29 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import profilePic from '../assets/profile-pic.png';
 import msg from '../assets/msgDot.svg';
 import bell from '../assets/bellDot.svg';
 import drop from '../assets/arrow_drop_down.svg';
 import logout from '../assets/logout.svg';
 import setting from '../assets/setting.svg';
+
 const TopBar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
-
-const User =  props.User;
-console.log(User);
-
+  const User = props.User;
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleItemClick = (item) => {
-    setIsOpen(false); // Close dropdown after selection
+  const handleLogout = () => {
+    // Clear local storage and cookies
+    localStorage.clear();
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    setIsOpen(false);
   };
 
   return (
@@ -48,15 +54,18 @@ console.log(User);
               {isOpen && (
                 <div className="absolute -right-9 mt-4 w-48 p-2 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                   <div className="py-1">
-                  <a href="#" onClick={() => handleItemClick('Option 4')} className="flex items-center px-10 py-3 rounded-lg font-bold transition duration-300 ease-in-out text-gray-600  hover:text-white hover:bg-blue-500 hover:shadow-inner hover:shadow-slate-700">
-              <img src={setting} alt="Logout" className="transition duration-300 ease-in-out filter invert" />
-              <span className="ml-4">Settings</span>
-            </a>
-                    <a href="#" onClick={() => handleItemClick('Option 3')} className="bg-white justify-center text-red-700 font-bold flex items-center px-4 py-3 rounded-lg hover:shadow-slate-700 hover:shadow-inner transition duration-300 ease-in-out hover:bg-red-500 hover:text-white">
-              <img src={logout} alt="Logout" className="transition duration-300 ease-in-out" />
-              <span className="ml-4">Logout</span>
-            </a>
-                    
+                    <Link to="/dashboard/settings" onClick={() => setIsOpen(false)}>
+                      <button className="flex items-center px-10 py-3 rounded-lg font-bold transition duration-300 ease-in-out text-gray-600 hover:text-white hover:bg-blue-500 hover:shadow-inner hover:shadow-slate-700">
+                        <img src={setting} alt="Settings" className="transition duration-300 ease-in-out filter invert" />
+                        <span className="ml-4">Settings</span>
+                      </button>
+                    </Link>
+                    <Link to="/" onClick={handleLogout}>
+                      <button className="flex items-center px-10 py-3 rounded-lg font-bold transition duration-300 ease-in-out text-gray-600 hover:text-white hover:bg-red-600 hover:shadow-inner hover:shadow-slate-700">
+                        <img src={logout} alt="Logout" className="transition duration-300 ease-in-out" />
+                        <span className="ml-4">Logout</span>
+                      </button>
+                    </Link>
                   </div>
                 </div>
               )}
@@ -65,7 +74,7 @@ console.log(User);
         </div>
       </div>
       {/* Name of Dashboard */}
-      <div className='font-bold pl-12 pb-4 text-2xl selected-efect-3d'> {props.selected}</div>
+      {/* <div className='font-bold pl-12 pb-4 text-2xl selected-efect-3d'>{props.selected}</div> */}
     </>
   );
 };

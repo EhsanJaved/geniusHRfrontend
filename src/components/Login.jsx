@@ -1,30 +1,25 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
-const LoginPage = ({MainLogo, onLogin }) => {
-  const [email, setEmail] = useState('');
+const LoginPage = ({ MainLogo, onLogin }) => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate(); // Hook to navigate programmatically
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Call the onLogin function and check if login was successful
-    const isSuccess = onLogin(email, password);
-    if (isSuccess) {
-      navigate('/dashboard'); // Redirect to dashboard on successful login
-    } else {
-      setError('Invalid email or password');
+    try {
+      await onLogin(username, password);
+    } catch (err) {
+      setError('Invalid username or password');
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        {/* <img src={MainLogo} alt="Logo" /> */}
-        <img src={MainLogo} alt=""  className="w-auto h-24 mx-auto mb-4" />
+        <img src={MainLogo} alt="Logo" className="w-auto h-24 mx-auto mb-4" />
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        
+
         {error && (
           <div className="mb-4 text-red-500 text-center">
             {error}
@@ -34,14 +29,14 @@ const LoginPage = ({MainLogo, onLogin }) => {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Email
+              Username
             </label>
             <input
-              type="email"
+              type="text"
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>

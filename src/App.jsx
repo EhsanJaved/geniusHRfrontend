@@ -1,85 +1,91 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Outlet } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
 
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Dashboard from './components/Dashboard';
-import MainLogo from './assets/Logo1.svg';
-import LoginPage from './components/Login'; // Import the LoginPage component
+import Messages from './components/Messages';
+import Calendar from './components/Calendar';
+import Payroll from './components/Payroll';
+import Employees from './components/Employees';
+import Candidates from './components/Candidates';
+import Jobs from './components/Jobs';
+import MeetingsPage from './components/Meeting';
+import LoginPage from './components/Login';
+import SettingsPage from './components/Settings';
+import AttendancePage from './components/Attendance';
+import DepartmentManagementPage from './components/departments';
 
-// icons importing 
-import message from './assets/message.svg';
-import calendar from './assets/calendar.svg';
-import dashboard from './assets/dashboard.svg';
-import employee from './assets/employee.svg';
-import meeting from './assets/meeting.svg';
-import payroll from './assets/payroll.svg';
-import job from './assets/job.svg';
+import { menuItemsForAdmin, menuItemsForHRAdmin, menuItemsForEmployees, menuItemsForManager } from './components/fregments/MenuContent';
+
+import MainLogo from './assets/Logo1.svg';
 import profilePicEhsan from './assets/profile-pic.png';
-import profilePicRehman from './assets/profile-pic-user.jpg';
 
 function App() {
   const [selectedItem, setSelectedItem] = useState('Dashboard');
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Initially not authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const navigate = useNavigate(); // For navigation
+  const navigate = useNavigate();
 
-  // Define menu items for different users
-  const menuItemsForUser1 = [
-    { name: 'Dashboard', icon: dashboard, link: '/dashboard' },
-    { name: 'Message', icon: message, link: '/messages' },
-    { name: 'Meeting', icon: meeting, link: '/meeting' },
-    { name: 'Calendar', icon: calendar, link: '/calendar' },
-    { name: 'Payroll', icon: payroll, link: '/payroll' },
-    { name: 'Candidates', icon: employee, link: '/candidates' },
-    { name: 'Employees', icon: employee, link: '/employees' },
-    { name: 'Jobs', icon: job, link: '/jobs' },
-  ];
+  // Function to determine the menu based on user role
+  const getMenuItems = () => {
+    if (user?.role === 'Admin') return menuItemsForAdmin;
+    if (user?.role === 'HR Admin') return menuItemsForHRAdmin;
+    if (user?.role === 'Manager') return menuItemsForManager;
+    return menuItemsForEmployees;
+  };
 
-  const menuItemsForEmployees = [
-    { name: 'Dashboard', icon: dashboard, link: '/dashboard' },
-    { name: 'Attendance', icon: message, link: '/messages' },
-    { name: 'Message', icon: message, link: '/messages' },
-    { name: 'Calendar', icon: calendar, link: '/calendar' },
-    { name: 'Payroll', icon: payroll, link: '/payroll' },
-  ];
+  const handleLogin = async (username, password) => {
+    const url = 'http://localhost:8000/emp/login/';
+    try {
+      const response = await axios.post(url, { username, password });
+      if (response.data.token) {
+        const profilePicUrl = response.data.Picture 
+          ? `http://localhost:8000${response.data.Picture}` 
+          : profilePicEhsan;
 
-  // Handle user login
-  const handleLogin = (email, password) => {
-    // Simple authentication check
-    if (email === 'admin@example.com' && password === 'password') {
-      setIsAuthenticated(true);
-      setUser({ id: 1, name: 'Ehsan Javed', role: 'HR Admin', pic:profilePicEhsan }); // Set user ID or role
-      return true;
-    } else if (email === 'user@example.com' && password === 'password') {
-      setIsAuthenticated(true);
-      setUser({ id: 2, name: 'Rehman Chohan', role: 'Employee', pic: profilePicRehman }); // Different user ID or role
-      return true;
-    } else {
-      alert('Invalid credentials');
-      return false;
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify({
+          id: response.data.user_id,
+          name: response.data.user_name,
+          role: response.data.role,
+          pic: profilePicUrl,
+        }));
+        console.log(response.data.token);
+        
+        setIsAuthenticated(true);
+        setUser({
+          id: response.data.user_id,
+          name: response.data.user_name,
+          role: response.data.role,
+          pic: profilePicUrl,
+        });
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Login error:', error.response ? error.response.data : error.message);
+      alert('Login failed. Please check your credentials.');
     }
   };
 
-  // useEffect to handle redirection based on authentication status
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard'); // Navigate to dashboard if authenticated
-    } else {
-      navigate('/'); // Navigate to login if not authenticated
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    if (token && savedUser) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(savedUser));
+      // Optionally check if the token is valid by making a request to your API
     }
-  }, [isAuthenticated, navigate]); // Run this effect when authentication status changes
+  }, []);
 
   return (
     <Routes>
-      {/* Route for the login page */}
       <Route
         path="/"
         element={<LoginPage onLogin={handleLogin} MainLogo={MainLogo} />}
       />
-
-      {/* Protected Route for the dashboard */}
       <Route
         path="/dashboard"
         element={
@@ -88,21 +94,30 @@ function App() {
               <Sidebar
                 MainLogo={MainLogo}
                 setselected={setSelectedItem}
-                menuItems={user?.id === 1 ? menuItemsForUser1 : menuItemsForEmployees} // Show different menu based on user ID
+                menuItems={getMenuItems()}
               />
               <div className="flex-1 bg-gray-50">
-                <TopBar
-                selected={selectedItem}
-                User={user}
-                />
-                <Dashboard />
+                <TopBar selected={selectedItem} User={user} />
+                <Outlet /> {/* Placeholder for nested routes */}
               </div>
             </div>
           ) : (
             <LoginPage onLogin={handleLogin} />
           )
         }
-      />
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="messages" element={<Messages />} />
+        <Route path="meeting" element={<MeetingsPage />} />
+        <Route path="calendar" element={<Calendar />} />
+        <Route path="payroll" element={<Payroll />} />
+        <Route path="candidates" element={<Candidates />} />
+        <Route path="employees" element={<Employees />} />
+        <Route path="jobs" element={<Jobs />} />
+        <Route path="attendance" element={<AttendancePage />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="department" element={<DepartmentManagementPage />} />
+      </Route>
     </Routes>
   );
 }
