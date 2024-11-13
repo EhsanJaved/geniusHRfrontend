@@ -99,6 +99,7 @@ const TopBar = (props) => {
                 <h3 className="font-bold text-gray-800 mb-2">Unseen Messages</h3>
                 {conversations.length > 0 ? (
                   conversations.map((conversation) => (
+                    <Link to='/dashboard/messages '>
                     <div key={conversation.id} className="text-gray-600 mb-3">
                       {/* <div className="font-semibold">{conversation.other_user}</div> */}
                       {conversation.unseenMsgs.map((message) => (
@@ -108,6 +109,7 @@ const TopBar = (props) => {
                         </p>
                       ))}
                     </div>
+                    </Link>
                   ))
                 ) : (
                   <p className="text-gray-600">No new messages.</p>
