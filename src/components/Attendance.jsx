@@ -43,7 +43,7 @@ export default function AttendancePage() {
 
   return (<>
       <div className='flex justify-between pr-9'>
-      <h1 className="text-3xl font-bold pl-8 pb-4 selected-efect-3d">Attendance Record</h1>
+      <h1 className="text-3xl font-bold pl-8 pb-4 selected-efect-3d">Attendance</h1>
       <button
         onClick={() => setIsLeaveModalOpen(true)}
         className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md mb-4 font-semibold hover:shadow-inner hover:shadow-slate-700 effect-3d"

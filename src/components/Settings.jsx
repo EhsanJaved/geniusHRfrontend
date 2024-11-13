@@ -5,6 +5,7 @@ const BASE_URL = 'http://localhost:8000';
 export default function SettingsPage() {
   const [isResignationModalOpen, setIsResignationModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [imagePreview, setImagePreview] = useState('');
   const [test, setTest] = useState({
     user: {
       username: "",
@@ -58,6 +59,7 @@ export default function SettingsPage() {
           bank_details: { ...data.bank_details },
           employee_benefits: data.employee_benefits || { benefit: [...data.employee_benefits.benefit] }
         });
+        setImagePreview(data.img ? `${BASE_URL}${data.img}` : '');
         console.log(response.data);
         
       } catch (error) { 
@@ -87,8 +89,8 @@ export default function SettingsPage() {
         } else if (key === 'birth_date') {
           const formattedBirthDate = value ? new Date(value).toISOString().split('T')[0] : '';
           formdata.append(key, formattedBirthDate);
-        } else {
-          formdata.append(key, value);
+        }else if (key !== 'img') { // Skip img here to check its type
+          formdata.append(key, value); 
         }
       });
 
@@ -136,15 +138,24 @@ export default function SettingsPage() {
 
 
 
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     setTest({ ...test, img: file });
+  //   }
+  // };
+
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setTest({ ...test, img: file });
+      const imageUrl = URL.createObjectURL(file);
+      setImagePreview(imageUrl); // Set preview URL
+      // Clean up the object URL when the component unmounts or image changes
+      return () => URL.revokeObjectURL(imageUrl);
     }
   };
-
-
-
 
 
   return (
@@ -163,19 +174,19 @@ export default function SettingsPage() {
           <h3 className="text-xl font-semibold">User Information</h3>
           <div className="flex flex-col items-center mb-4">
             <div className="relative w-32 h-32 mb-2">
-              <img
-                src={test.img || 'https://via.placeholder.com/150'}
+            <img
+                src={imagePreview || 'https://via.placeholder.com/150'}
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full border-2 border-gray-300"
               />
               {isEditing && (
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
-                  title="Upload a profile picture"
-                />
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 opacity-0 cursor-pointer rounded-full"
+                title="Upload a profile picture"
+              />
               )}
             </div>
             {isEditing && (
@@ -256,9 +267,9 @@ export default function SettingsPage() {
             />
             <input
               type="date"
-              name="birthDate"
+              name="birth_date" // Ensure this matches the backend field name
               placeholder="Birth Date"
-              value={test.birth_date || undefined}
+              value={test.birth_date || ""}
               onChange={handleInputChange}
               className="border p-2 rounded"
               disabled={!isEditing}
@@ -309,16 +320,24 @@ export default function SettingsPage() {
         </div>
 
       {/* View-Only Section */}
-      <div className="bg-gray-50 p-6 rounded-lg shadow-md space-y-2">
+        <div className="bg-gray-50 p-6 rounded-lg shadow-md space-y-2">
         <h3 className="text-xl font-semibold">Employment Details</h3>
-        <p><strong>Salary:</strong>PKR.{test.salary}</p>
-        <p><strong>Benefits:</strong> {test.employee_benefits.benefit.map(
-          (benefit, index) => <span key={index}>{benefit.benefit}, </span>
-        )}</p>
-        <p><strong>Employment Status: </strong>{test.emp_status}</p>
-        <p><strong>Department:</strong> {test.department.department_name}</p>
-        <p><strong>Department Location:</strong> {test.department.department_location}</p>
-      </div>
+        <p><strong>Salary:</strong> PKR.{test.salary}</p>
+        <p><strong>Bonus:</strong> PKR.{test.bonus}</p>
+        <p>
+          <strong>Benefits:</strong> 
+          {test.employee_benefits.benefit && test.employee_benefits.benefit.length > 0 ? (
+            test.employee_benefits.benefit.map((benefit, index) => (
+              <span key={index}>{benefit.benefit}{index < test.employee_benefits.benefit.length - 1 ? ', ' : ''}</span>
+            ))
+          ) : (
+            <span>No benefits</span>
+          )}
+        </p>
+        <p><strong>Employment Status:</strong> {test.emp_status}</p>
+        <p><strong>Department Name:</strong> {test.department?.department_name || 'Not Assigned'}</p>
+        <p><strong>Department Location:</strong> {test.department?.department_location || 'Not Assigned'}</p>
+      </div>  
 
       {/* Resignation Button */}
       <button onClick={() => setIsResignationModalOpen(true)} className="px-4 py-2 bg-red-500 text-white rounded-md shadow-md">
