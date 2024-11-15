@@ -1,99 +1,253 @@
-// src/components/JobPosting.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-const JobPosting = () => {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [company, setCompany] = useState("");
-    const [status, setStatus] = useState("open");
+const CreateJobModal = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [skills, setSkills] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [jobData, setJobData] = useState({
+        title: "Frontend Developer",
+        description: "Responsible for creating and managing web-based user interfaces.",
+        department: 2,
+        post_date: "2024-11-14",
+        close_date: "2024-12-14",
+        max_salary_range: 90000,
+        job_status: "Open",
+        employment_type: "Full Time",
+        required_skills: [1, 2],
+    });
+    const [selectedSkills, setSelectedSkills] = useState([]);
 
-    const handleJobPosting = () => {
-        alert(`Job Posted: ${title}, ${company}, Status: ${status}`);
-        setTitle("");
-        setDescription("");
-        setCompany("");
-        setStatus("open");
-        setIsModalOpen(false); // Close modal after posting
+    useEffect(() => {
+        const fetchSkills = async () => {
+            try {
+                const response = await axios.get("http://127.0.0.1:8000/jobs/skills/");
+                setSkills(response.data);
+            } catch (error) {
+                console.error("Error fetching skills:", error);
+            }
+        };
+
+        const fetchDepartments = async () => {
+            try {
+                const response = await axios.get("http://127.0.0.1:8000/jobs/DepartmentForJobs/");
+                setDepartments(response.data);
+            } catch (error) {
+                console.error("Error fetching departments:", error);
+            }
+        };
+
+        fetchSkills();
+        fetchDepartments();
+    }, []);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setJobData((prevJobData) => ({
+            ...prevJobData,
+            [name]: value,
+        }));
     };
 
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+    const handleDepartmentChange = (e) => {
+        setJobData((prevJobData) => ({
+            ...prevJobData,
+            department: parseInt(e.target.value),
+        }));
+    };
 
-    return (<>
-            <button 
-                onClick={openModal} 
-               className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md mb-4 font-semibold hover:shadow-inner hover:shadow-slate-700 effect-3d"
+    const handleSkillChange = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions);
+        const skillIds = selectedOptions.map(option => parseInt(option.value));
+        setSelectedSkills(skillIds);
+        setJobData((prevJobData) => ({
+            ...prevJobData,
+            required_skills: skillIds,
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post("http://127.0.0.1:8000/jobs/JobPosting/", jobData);
+            console.log("Job created successfully:", response.data);
+            setJobData({
+                title: "",
+                description: "",
+                department: "",
+                post_date: "",
+                close_date: "",
+                max_salary_range: "",
+                job_status: "Open",
+                employment_type: "Full Time",
+                required_skills: [],
+            });
+            setSelectedSkills([]);
+            setIsModalOpen(false);
+            alert("Job created successfully!");
+        } catch (error) {
+            console.error("Error creating job:", error);
+            alert("Failed to create job. Please try again.");
+        }
+    };
+
+    return (
+        <div>
+            <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md"
             >
-                Post a New Job
+                Create Job
             </button>
-        <div className="max-w-3xl mx-auto ">
 
-            {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg w-1/3 p-5 shadow-lg">
-                        <h1 className="text-2xl font-bold mb-4">Post a New Job</h1>
-                        <form>
-                            <div className="mb-4">
-                                <label className="block text-lg">Job Title</label>
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+                    <div className="bg-white p-4 rounded-lg shadow-lg max-w-lg w-full">
+                        <h2 className="text-xl font-semibold mb-2">Create Job Posting</h2>
+
+                        <form onSubmit={handleSubmit}>
+                            <label className="block mb-1">
+                                <span className="text-gray-700">Job Title</span>
                                 <input
                                     type="text"
-                                    placeholder="Job Title"
-                                    className="border p-2 w-full rounded-lg"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
+                                    name="title"
+                                    value={jobData.title}
+                                    onChange={handleInputChange}
+                                    className="block w-full mt-1 border p-1 rounded-md"
+                                    required
                                 />
-                            </div>
+                            </label>
 
-                            <div className="mb-4">
-                                <label className="block text-lg">Job Description</label>
+                            <label className="block mb-1">
+                                <span className="text-gray-700">Description</span>
                                 <textarea
-                                    placeholder="Job Description"
-                                    className="border p-2 w-full rounded-lg"
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
+                                    name="description"
+                                    value={jobData.description}
+                                    onChange={handleInputChange}
+                                    className="block w-full mt-1 border p-1 rounded-md"
+                                    required
                                 />
-                            </div>
+                            </label>
 
-                            <div className="mb-4">
-                                <label className="block text-lg">Company</label>
-                                <input
-                                    type="text"
-                                    placeholder="Company Name"
-                                    className="border p-2 w-full rounded-lg"
-                                    value={company}
-                                    onChange={(e) => setCompany(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-lg">Status</label>
+                            <label className="block mb-1">
+                                <span className="text-gray-700">Department</span>
                                 <select
-                                    className="border p-2 w-full rounded-lg"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
+                                    name="department"
+                                    value={jobData.department}
+                                    onChange={handleDepartmentChange}
+                                    className="block w-full mt-1 border p-1 rounded-md"
+                                    required
                                 >
-                                    <option value="open">Open</option>
-                                    <option value="closed">Closed</option>
-                                    <option value="pending">Pending</option>
+                                    <option value="">Select Department</option>
+                                    {departments.map((department) => (
+                                        <option key={department.id} value={department.id}>
+                                            {department.department_name}
+                                        </option>
+                                    ))}
                                 </select>
+                            </label>
+
+                            {/* Post Date and Close Date in one line */}
+                            <div className="flex gap-2 mb-1">
+                                <label className="flex-1">
+                                    <span className="text-gray-700">Post Date</span>
+                                    <input
+                                        type="date"
+                                        name="post_date"
+                                        value={jobData.post_date}
+                                        onChange={handleInputChange}
+                                        className="block w-full mt-1 border p-1 rounded-md"
+                                        required
+                                    />
+                                </label>
+
+                                <label className="flex-1">
+                                    <span className="text-gray-700">Close Date</span>
+                                    <input
+                                        type="date"
+                                        name="close_date"
+                                        value={jobData.close_date}
+                                        onChange={handleInputChange}
+                                        className="block w-full mt-1 border p-1 rounded-md"
+                                        required
+                                    />
+                                </label>
                             </div>
 
-                            <div className="flex justify-between">
-                                <button
-                                    type="button"
-                                    className="bg-blue-500 text-white py-2 px-4 rounded"
-                                    onClick={handleJobPosting}
+                            <label className="block mb-1">
+                                <span className="text-gray-700">Max Salary Range</span>
+                                <input
+                                    type="number"
+                                    name="max_salary_range"
+                                    value={jobData.max_salary_range}
+                                    onChange={handleInputChange}
+                                    className="block w-full mt-1 border p-1 rounded-md"
+                                    required
+                                />
+                            </label>
+
+                            {/* Job Status and Employment Type in one line */}
+                            <div className="flex gap-2 mb-1">
+                                <label className="flex-1">
+                                    <span className="text-gray-700">Job Status</span>
+                                    <select
+                                        name="job_status"
+                                        value={jobData.job_status}
+                                        onChange={handleInputChange}
+                                        className="block w-full mt-1 border p-1 rounded-md"
+                                        required
+                                    >
+                                        <option value="Open">Open</option>
+                                        <option value="Closed">Closed</option>
+                                    </select>
+                                </label>
+
+                                <label className="flex-1">
+                                    <span className="text-gray-700">Employment Type</span>
+                                    <select
+                                        name="employment_type"
+                                        value={jobData.employment_type}
+                                        onChange={handleInputChange}
+                                        className="block w-full mt-1 border p-1 rounded-md"
+                                        required
+                                    >
+                                        <option value="Full Time">Full Time</option>
+                                        <option value="Part Time">Part Time</option>
+                                        <option value="Contract">Contract</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <label className="block mb-2">
+                                <span className="text-gray-700">Required Skills</span>
+                                <select
+                                    multiple
+                                    value={selectedSkills}
+                                    onChange={handleSkillChange}
+                                    className="block w-full mt-1 border p-1 rounded-md"
+                                    required
                                 >
-                                    Post Job
-                                </button>
+                                    {skills.map((skill) => (
+                                        <option key={skill.id} value={skill.id}>
+                                            {skill.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+
+                            <div className="flex justify-end gap-2">
                                 <button
                                     type="button"
-                                    className="bg-gray-500 text-white py-2 px-4 rounded"
-                                    onClick={closeModal}
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="bg-gray-500 text-white px-3 py-1 rounded-md"
                                 >
                                     Close
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-blue-500 text-white px-3 py-1 rounded-md"
+                                >
+                                    Create Job
                                 </button>
                             </div>
                         </form>
@@ -101,8 +255,7 @@ const JobPosting = () => {
                 </div>
             )}
         </div>
-        </>
     );
 };
 
-export default JobPosting;
+export default CreateJobModal;
