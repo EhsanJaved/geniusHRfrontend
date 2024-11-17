@@ -4,6 +4,7 @@ import axios from "axios";
 const JobList = () => {
     const [jobs, setJobs] = useState([]);
     const [skills, setSkills] = useState([]);
+    const [departments, setDepartments] = useState([]);
     const [selectedJob, setSelectedJob] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedJob, setEditedJob] = useState(null);
@@ -28,6 +29,19 @@ const JobList = () => {
             }
         };
 
+        const fetchDepartments = async () => {
+            try {
+                const response = await axios.get("http://127.0.0.1:8000/jobs/DepartmentForJobs/");
+                setDepartments(response.data);
+                console.log(response.data);
+                console.log(departments);
+                
+                
+            } catch (error) {
+                console.error("Error fetching departments:", error);
+            }
+        };
+        fetchDepartments();
         fetchJobs();
         fetchSkills();
     }, []);
@@ -91,6 +105,11 @@ const JobList = () => {
         }
     };
 
+    const getDepartmentName = (id) => {
+        const department = departments.find((dept) => dept.id === id);
+        return department ? department.department_name : "Unknown";
+    };
+
     return (
         <div className="max-w-6xl mx-auto mt-5 p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -106,6 +125,7 @@ const JobList = () => {
                         <p className={`text-sm mt-2 ${job.job_status === "Open" ? "text-green-500" : "text-red-500"}`}>
                             Status: {job.job_status}
                         </p>
+                        <p className="text-sm font-medium">Department: {getDepartmentName(job.department)}</p>
                         <p className="text-sm text-gray-500">Posted on: {new Date(job.post_date).toLocaleDateString()}</p>
                         <p className="text-sm text-gray-500">Closes on: {new Date(job.close_date).toLocaleDateString()}</p>
                     </div>
@@ -148,56 +168,82 @@ const JobList = () => {
                                         <option key={skill.id} value={skill.id}>{skill.name}</option>
                                     ))}
                                 </select>
+                                <label className="block text-md font-semibold mb-2">Department:</label>
+                                <select
+                                    name="department"
+                                    value={editedJob.department}
+                                    onChange={handleInputChange}
+                                    className="border w-full p-2 mb-4"
+                                >
+                                    {departments.map(dept => (
+                                        <option key={dept.id} value={dept.id}>{dept.department_name}</option>
+                                    ))}
+                                </select>
+                                <label className="block text-md font-semibold mb-2">Post Date:</label>
+                                <input
+                                    type="date"
+                                    name="post_date"
+                                    value={editedJob.post_date}
+                                    onChange={handleInputChange}
+                                    className="border w-full p-2 mb-4"
+                                />
+                                <label className="block text-md font-semibold mb-2">Close Date:</label>
+                                <input
+                                    type="date"
+                                    name="close_date"
+                                    value={editedJob.close_date}
+                                    onChange={handleInputChange}
+                                    className="border w-full p-2 mb-4"
+                                />
                             </>
                         ) : (
                             <>
-                                <h2 className="text-2xl font-bold mb-4">{selectedJob.title}</h2>
-                                <p className="text-lg mb-4">{selectedJob.description}</p>
-                                <p className="text-md font-medium mb-4">Max Salary: {selectedJob.max_salary_range}</p>
+                                <h2 className="text-2xl font-bold">{selectedJob.title}</h2>
+                                <p className={`text-sm mb-4 ${selectedJob.job_status === "Open" ? "text-green-500" : "text-red-500"}`}>
+                                    Status: {selectedJob.job_status}
+                                </p>
+                                <p className="text-sm mb-4">{selectedJob.description}</p>
+                                <p className="text-sm font-medium mb-2">Department: {getDepartmentName(selectedJob.department)}</p>
+                                <p className="text-md font-medium mb-2">Max Salary: {selectedJob.max_salary_range}</p>
                                 <h3 className="text-md font-semibold mb-2">Required Skills:</h3>
-                                <ul className="list-disc list-inside mb-4">
+                                <div className="list-disc list-inside mb-4">
                                     {selectedJob.required_skills.map((skill) => (
-                                        <li key={skill.id}>{skill.name}</li>
+                                        <div key={skill.id}>{skill.name}</div>
                                     ))}
-                                </ul>
+                                </div>
+                                <p className="text-sm text-gray-500">Posted on: {new Date(selectedJob.post_date).toLocaleDateString()}</p>
+                                <p className="text-sm text-gray-500">Closes on: {new Date(selectedJob.close_date).toLocaleDateString()}</p>
                             </>
                         )}
 
-                        <p className={`text-sm mt-2 ${selectedJob.job_status === "Open" ? "text-green-500" : "text-red-500"}`}>
-                            Status: {selectedJob.job_status}
-                        </p>
-                        <p className="text-sm text-gray-500 mb-4">Posted on: {new Date(selectedJob.post_date).toLocaleDateString()}</p>
-                        <p className="text-sm text-gray-500 mb-4">Closes on: {new Date(selectedJob.close_date).toLocaleDateString()}</p>
-
-                        <button
-                            onClick={handleEditToggle}
-                            className="bg-blue-500 text-white py-2 px-4 rounded mr-2"
-                        >
-                            {isEditing ? "Cancel" : "Edit"}
-                        </button>
-
-                        {isEditing && (
+                        <div className="flex justify-between mt-4">
                             <button
-                                onClick={handleSave}
-                                className="bg-green-500 text-white py-2 px-4 rounded mr-2"
+                                onClick={handleEditToggle}
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
                             >
-                                Save
+                                {isEditing ? "Cancel" : "Edit"}
                             </button>
-                        )}
-
-                        <button
-                            onClick={handleDelete}
-                            className="bg-red-500 text-white py-2 px-4 rounded mr-2"
-                        >
-                            Delete
-                        </button>
-
-                        <button
-                            onClick={closeJobDetails}
-                            className="bg-gray-500 text-white py-2 px-4 rounded mt-2"
-                        >
-                            Close
-                        </button>
+                            {isEditing && (
+                                <button
+                                    onClick={handleSave}
+                                    className="bg-green-500 text-white py-2 px-4 rounded-lg"
+                                >
+                                    Save
+                                </button>
+                            )}
+                            <button
+                                onClick={handleDelete}
+                                className="bg-red-500 text-white py-2 px-4 rounded-lg"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={closeJobDetails}
+                                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

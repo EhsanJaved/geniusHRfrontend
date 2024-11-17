@@ -6,15 +6,15 @@ const CreateJobModal = () => {
     const [skills, setSkills] = useState([]);
     const [departments, setDepartments] = useState([]);
     const [jobData, setJobData] = useState({
-        title: "Frontend Developer",
-        description: "Responsible for creating and managing web-based user interfaces.",
-        department: 2,
-        post_date: "2024-11-14",
-        close_date: "2024-12-14",
-        max_salary_range: 90000,
-        job_status: "Open",
-        employment_type: "Full Time",
-        required_skills: [1, 2],
+        title: "", 
+        description: "",
+        department: 0,
+        post_date: "",
+        close_date: "",
+        max_salary_range: 0,
+        job_status: "",
+        employment_type: "",
+        required_skills: [],
     });
     const [selectedSkills, setSelectedSkills] = useState([]);
 
