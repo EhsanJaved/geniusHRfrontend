@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import ResignationApplication from './ResignationApplicationModal';
 const BASE_URL = 'http://localhost:8000';
 
 export default function SettingsPage() {
@@ -338,29 +339,7 @@ export default function SettingsPage() {
         <p><strong>Department Name:</strong> {test.department?.department_name || 'Not Assigned'}</p>
         <p><strong>Department Location:</strong> {test.department?.department_location || 'Not Assigned'}</p>
       </div>  
-
-      {/* Resignation Button */}
-      <button onClick={() => setIsResignationModalOpen(true)} className="px-4 py-2 bg-red-500 text-white rounded-md shadow-md">
-        Resignation
-      </button>
-
-      {/* Resignation Modal */}
-      {isResignationModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-1/3">
-            <h3 className="text-xl font-semibold mb-2">Resignation Form</h3>
-            <div className="grid gap-4">
-              <input type="text" name="resignation.firstName" placeholder="First Name" className="border p-2 rounded" />
-              <input type="text" name="resignation.lastName" placeholder="Last Name" className="border p-2 rounded" />
-              <textarea name="resignation.reason" placeholder="Reason for Resignation" className="border p-2 rounded"></textarea>
-            </div>
-            <div className="mt-4 flex justify-end space-x-4">
-              <button onClick={() => setIsResignationModalOpen(false)} className="px-4 py-2 bg-gray-400 text-white rounded-md">Cancel</button>
-              <button className="px-4 py-2 bg-red-500 text-white rounded-md">Submit Resignation</button>
-            </div>
-          </div>
-        </div>
-      )}
+          <ResignationApplication/>
     </div>
     </>
   );
