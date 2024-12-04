@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MessageInput from './MessageInput';
 
 const ConversationView = ({ conversation }) => {
   const [messages, setMessages] = useState([]);
-  const [userId, setUserId] = useState(null); 
-  const [otherUserName, setOtherUserName] = useState(''); 
- 
+  const [userId, setUserId] = useState(null);
+  const [otherUserName, setOtherUserName] = useState('');
+  const messageEndRef = useRef(null);
+
   useEffect(() => {
-    const userdata = localStorage.getItem('user');
-    const user = JSON.parse(userdata);
-    const loggedInUserId = user.id;
-
-    setUserId(Number(loggedInUserId));
-
     if (conversation) {
+      // Get user data and set user ID
+      const userdata = localStorage.getItem('user');
+      const user = JSON.parse(userdata);
+      const loggedInUserId = user.id;
+      setUserId(Number(loggedInUserId));
+
+      // Fetch messages
       fetch(`http://127.0.0.1:8000/api/conversation/${conversation.id}/messages/`, {
         headers: {
           Authorization: `token ${localStorage.getItem('token')}`,
@@ -22,6 +24,7 @@ const ConversationView = ({ conversation }) => {
         .then((response) => response.json())
         .then((data) => setMessages(data));
 
+      // Determine the other user's name
       const determineOtherUserName = () => {
         if (conversation.other_user) {
           return conversation.other_user;
@@ -35,7 +38,7 @@ const ConversationView = ({ conversation }) => {
 
       setOtherUserName(determineOtherUserName());
     }
-  }, [conversation]);
+  }, [conversation]); // This effect runs when `conversation` changes
 
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString();
@@ -45,8 +48,14 @@ const ConversationView = ({ conversation }) => {
     return <div className="flex items-center justify-center h-full">Select a conversation</div>;
   }
 
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]); // Scroll to the bottom when messages change
+
   return (
-    <div className="flex flex-col h-screen" >
+    <div className="flex flex-col h-screen">
       {/* Header with other user's name */}
       <div className="p-4 bg-gray-100 border-b text-xl font-semibold">
         {otherUserName}
@@ -54,7 +63,7 @@ const ConversationView = ({ conversation }) => {
 
       {/* Message list */}
       <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-        {conversation.messages.map((message) => {
+        {messages.map((message) => {
           const isUserMessage = message.sender === userId;
           return (
             <div
@@ -73,13 +82,14 @@ const ConversationView = ({ conversation }) => {
             </div>
           );
         })}
+        <div ref={messageEndRef} />
       </div>
 
       {/* Message input */}
       <div className="p-2 bg-white border-t">
         <MessageInput
           conversationId={conversation.id}
-          onNewMessage={(msg) => setMessages([...messages, msg])}
+          onNewMessage={(msg) => setMessages((prevMessages) => [...prevMessages, msg])}
         />
       </div>
     </div>

@@ -38,16 +38,11 @@ export default function AttendancePage() {
             headers: { Authorization: `token ${token}` },
           }
         );
+        console.log(response.data); 
+        
         const formattedData = response.data.map((record) => ({
           date: record.date,
-          status:
-            record.status === "P"
-              ? record.is_late
-                ? "Late"
-                : "Present"
-              : record.status === "A"
-              ? "Absent"
-              : "Leave",
+          status: attendanceStatus(record.status, record.is_late),
           inTime: formatTime(record.check_in_time),
           leaveTime: formatTime(record.check_out_time),
         }));
@@ -61,6 +56,10 @@ export default function AttendancePage() {
 
     fetchAttendanceData();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [attendanceData]);
 
   const markAttendance = async () => {
     const token = localStorage.getItem("token");
@@ -86,6 +85,17 @@ export default function AttendancePage() {
     } finally {
       setIsMarkingAttendance(false); // Hide loading state
     }
+  };
+
+  const attendanceStatus = (status, isLate) => {
+    if (status === "P") {
+      return isLate ? "Late" : "Present";
+    }
+    if (status === "A") return "Absent";
+    if (status === "L") return "Leave";
+    if (status === "H") return "Half Day";
+    if (status === "O") return "On Leave";
+    return "Unknown"; 
   };
 
   return (
@@ -126,19 +136,26 @@ export default function AttendancePage() {
                   <tr key={index} className="text-center border-b hover:bg-gray-50">
                     <td className="p-3 ">{record.date}</td>
                     <td className="p-3 ">
-                      <span
+                    <span
                         className={`py-1 px-3 rounded-full text-white ${
                           record.status === "Present"
-                            ? "bg-green-500"
+                            ? "bg-green-500" // Present
                             : record.status === "Absent"
-                            ? "bg-red-500"
-                            : record.status === "Late"
-                            ? "bg-orange-500"
-                            : "bg-yellow-500"
+                            ? "bg-red-500" // Absent
+                            : record.status === "Leave"
+                            ? "bg-blue-500" // Leave
+                            : record.status === "Half-Day"
+                            ? "bg-orange-500" // Half-Day
+                            : record.status === "Off"
+                            ? "bg-gray-500" // Off
+                            : "bg-yellow-500" // Default/Fallback
                         }`}
                       >
                         {record.status}
+                        {console.log(record.status)
+                        }
                       </span>
+
                     </td>
                     <td className="p-3">
                       <FaClock className="inline-block mr-1 text-blue-500" />
