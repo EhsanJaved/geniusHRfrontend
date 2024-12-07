@@ -24,6 +24,7 @@ import MainLogo from './assets/Logo1.svg';
 import emptyProfile from './assets/blank-profile.png';
 import MyApplicationsPage from './components/my/myApplications/ApplicationsPage';
 import Attendance from './components/attendance/Attendance';
+import PayrollPage from './components/payroll/PayrollPage';
 
 function App() {
   const [selectedItem, setSelectedItem] = useState('Dashboard');
@@ -119,6 +120,7 @@ function App() {
         <Route path="department" element={<DepartmentManagementPage />} />
         <Route path="applications" element={<ApplicationsPage />} />
         <Route path="Attendance" element={<Attendance/>} />
+        <Route path="payroll" element={<PayrollPage />} />
         <Route path="myattendance" element={<AttendancePage />} />
         <Route path="myapplications" element={<MyApplicationsPage />} />
         <Route path="mypayroll" element={<Payroll />} />

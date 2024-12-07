@@ -7,52 +7,52 @@ const ConversationView = ({ conversation }) => {
   const [otherUserName, setOtherUserName] = useState('');
   const messageEndRef = useRef(null);
 
+  // Effect for setting user ID and other user name
   useEffect(() => {
-    if (conversation) {
-      // Get user data and set user ID
-      const userdata = localStorage.getItem('user');
-      const user = JSON.parse(userdata);
-      const loggedInUserId = user.id;
-      setUserId(Number(loggedInUserId));
+    if (!conversation) return;
 
-      // Fetch messages
-      fetch(`http://127.0.0.1:8000/api/conversation/${conversation.id}/messages/`, {
-        headers: {
-          Authorization: `token ${localStorage.getItem('token')}`,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => setMessages(data));
+    const userdata = localStorage.getItem('user');
+    const user = JSON.parse(userdata);
+    const loggedInUserId = user.id;
+    setUserId(Number(loggedInUserId));
 
-      // Determine the other user's name
-      const determineOtherUserName = () => {
-        if (conversation.other_user) {
-          return conversation.other_user;
-        } else if (conversation.user1.id === Number(loggedInUserId)) {
-          return conversation.user2.username;
-        } else if (conversation.user2.id === Number(loggedInUserId)) {
-          return conversation.user1.username;
-        }
-        return 'Unknown User';
-      };
-
-      setOtherUserName(determineOtherUserName());
+    // Determine the other user's name
+    if (conversation.other_user) {
+      setOtherUserName(conversation.other_user);
+    } else if (conversation.user1.id === Number(loggedInUserId)) {
+      setOtherUserName(conversation.user2.username);
+    } else {
+      setOtherUserName(conversation.user1.username);
     }
-  }, [conversation]); // This effect runs when `conversation` changes
+  }, [conversation]);
+
+  // Effect for fetching messages
+  useEffect(() => {
+    if (!conversation) return;
+
+    fetch(`http://127.0.0.1:8000/api/conversation/${conversation.id}/messages/`, {
+      headers: {
+        Authorization: `token ${localStorage.getItem('token')}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => setMessages(data));
+  }, [conversation]);
+
+  // Effect for scrolling to the bottom of the chat
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const formatTimestamp = (timestamp) => {
     return new Date(timestamp).toLocaleString();
   };
 
-  if (!conversation || !conversation.messages) {
+  if (!conversation) {
     return <div className="flex items-center justify-center h-full">Select a conversation</div>;
   }
-
-  useEffect(() => {
-    if (messageEndRef.current) {
-      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]); // Scroll to the bottom when messages change
 
   return (
     <div className="flex flex-col h-screen">
@@ -97,3 +97,4 @@ const ConversationView = ({ conversation }) => {
 };
 
 export default ConversationView;
+                                                  
